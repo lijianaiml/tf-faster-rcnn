@@ -1,4 +1,3 @@
-# coding=utf-8
 # --------------------------------------------------------
 # Fast R-CNN
 # Copyright (c) 2015 Microsoft
@@ -22,9 +21,6 @@ import subprocess
 import uuid
 from .voc_eval import voc_eval
 from model.config import cfg
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
 
 
 class pascal_voc(imdb):
@@ -37,19 +33,13 @@ class pascal_voc(imdb):
     self._image_set = image_set
     self._devkit_path = self._get_default_path()
     self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
-    # self._classes = ('__background__',  # always index 0
-    #                  'aeroplane', 'bicycle', 'bird', 'boat',
-    #                  'bottle', 'bus', 'car', 'cat', 'chair',
-    #                  'cow', 'diningtable', 'dog', 'horse',
-    #                  'motorbike', 'person', 'pottedplant',
-    #                  'sheep', 'sofa', 'train', 'tvmonitor')
-
     self._classes = ('__background__',  # always index 0
-                     u'老年斑', u'褐青色痣', u'雀斑', u'黄褐斑',
-                     u'色素痣', u'晒斑', u'痤疮', u'炎症后色素沉着', u'黑头', u'痣', u'太田痣', u'敏感', u'雀斑样痣')
-
-    self._class_to_ind = dict(
-        list(zip(self.classes, list(range(self.num_classes)))))
+                     'aeroplane', 'bicycle', 'bird', 'boat',
+                     'bottle', 'bus', 'car', 'cat', 'chair',
+                     'cow', 'diningtable', 'dog', 'horse',
+                     'motorbike', 'person', 'pottedplant',
+                     'sheep', 'sofa', 'train', 'tvmonitor')
+    self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))
     self._image_ext = '.jpg'
     self._image_index = self._load_image_set_index()
     # Default to roidb handler
@@ -65,9 +55,9 @@ class pascal_voc(imdb):
                    'rpn_file': None}
 
     assert os.path.exists(self._devkit_path), \
-        'VOCdevkit path does not exist: {}'.format(self._devkit_path)
+      'VOCdevkit path does not exist: {}'.format(self._devkit_path)
     assert os.path.exists(self._data_path), \
-        'Path does not exist: {}'.format(self._data_path)
+      'Path does not exist: {}'.format(self._data_path)
 
   def image_path_at(self, i):
     """
@@ -82,7 +72,7 @@ class pascal_voc(imdb):
     image_path = os.path.join(self._data_path, 'JPEGImages',
                               index + self._image_ext)
     assert os.path.exists(image_path), \
-        'Path does not exist: {}'.format(image_path)
+      'Path does not exist: {}'.format(image_path)
     return image_path
 
   def _load_image_set_index(self):
@@ -94,7 +84,7 @@ class pascal_voc(imdb):
     image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
                                   self._image_set + '.txt')
     assert os.path.exists(image_set_file), \
-        'Path does not exist: {}'.format(image_set_file)
+      'Path does not exist: {}'.format(image_set_file)
     with open(image_set_file) as f:
       image_index = [x.strip() for x in f.readlines()]
     return image_index
@@ -108,6 +98,7 @@ class pascal_voc(imdb):
   def gt_roidb(self):
     """
     Return the database of ground-truth regions of interest.
+
     This function loads/saves from/to a cache file to speed up future calls.
     """
     cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
@@ -142,7 +133,7 @@ class pascal_voc(imdb):
     filename = self.config['rpn_file']
     print('loading {}'.format(filename))
     assert os.path.exists(filename), \
-        'rpn data not found at: {}'.format(filename)
+      'rpn data not found at: {}'.format(filename)
     with open(filename, 'rb') as f:
       box_list = pickle.load(f)
     return self.create_roidb_from_box_list(box_list, gt_roidb)
@@ -158,7 +149,7 @@ class pascal_voc(imdb):
     if not self.config['use_diff']:
       # Exclude the samples labeled as difficult
       non_diff_objs = [
-          obj for obj in objs if int(obj.find('difficult').text) == 0]
+        obj for obj in objs if int(obj.find('difficult').text) == 0]
       # if len(non_diff_objs) != len(objs):
       #     print 'Removed {} difficult objects'.format(
       #         len(objs) - len(non_diff_objs))
@@ -179,10 +170,7 @@ class pascal_voc(imdb):
       y1 = float(bbox.find('ymin').text) - 1
       x2 = float(bbox.find('xmax').text) - 1
       y2 = float(bbox.find('ymax').text) - 1
-      # print("++++++++++++++")
-      # print(obj.find('name').text.lower().strip())
       cls = self._class_to_ind[obj.find('name').text.lower().strip()]
-
       boxes[ix, :] = [x1, y1, x2, y2]
       gt_classes[ix] = cls
       overlaps[ix, cls] = 1.0
@@ -205,11 +193,11 @@ class pascal_voc(imdb):
     # VOCdevkit/results/VOC2007/Main/<comp_id>_det_test_aeroplane.txt
     filename = self._get_comp_id() + '_det_' + self._image_set + '_{:s}.txt'
     path = os.path.join(
-        self._devkit_path,
-        'results',
-        'VOC' + self._year,
-        'Main',
-        filename)
+      self._devkit_path,
+      'results',
+      'VOC' + self._year,
+      'Main',
+      filename)
     return path
 
   def _write_voc_results_file(self, all_boxes):
@@ -232,16 +220,16 @@ class pascal_voc(imdb):
 
   def _do_python_eval(self, output_dir='output'):
     annopath = os.path.join(
-        self._devkit_path,
-        'VOC' + self._year,
-        'Annotations',
-        '{:s}.xml')
+      self._devkit_path,
+      'VOC' + self._year,
+      'Annotations',
+      '{:s}.xml')
     imagesetfile = os.path.join(
-        self._devkit_path,
-        'VOC' + self._year,
-        'ImageSets',
-        'Main',
-        self._image_set + '.txt')
+      self._devkit_path,
+      'VOC' + self._year,
+      'ImageSets',
+      'Main',
+      self._image_set + '.txt')
     cachedir = os.path.join(self._devkit_path, 'annotations_cache')
     aps = []
     # The PASCAL VOC metric changed in 2010
@@ -254,8 +242,8 @@ class pascal_voc(imdb):
         continue
       filename = self._get_voc_results_file_template().format(cls)
       rec, prec, ap = voc_eval(
-          filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
-          use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
+        filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
+        use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
       aps += [ap]
       print(('AP for {} = {:.4f}'.format(cls, ap)))
       with open(os.path.join(output_dir, cls + '_pr.pkl'), 'wb') as f:
@@ -285,8 +273,8 @@ class pascal_voc(imdb):
     cmd += '{:s} -nodisplay -nodesktop '.format(cfg.MATLAB)
     cmd += '-r "dbstop if error; '
     cmd += 'voc_eval(\'{:s}\',\'{:s}\',\'{:s}\',\'{:s}\'); quit;"' \
-        .format(self._devkit_path, self._get_comp_id(),
-                self._image_set, output_dir)
+      .format(self._devkit_path, self._get_comp_id(),
+              self._image_set, output_dir)
     print(('Running:\n{}'.format(cmd)))
     status = subprocess.call(cmd, shell=True)
 
@@ -316,6 +304,6 @@ if __name__ == '__main__':
 
   d = pascal_voc('trainval', '2007')
   res = d.roidb
-  from IPython import embed
+  from IPython import embed;
 
   embed()
